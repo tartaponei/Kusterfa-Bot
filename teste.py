@@ -12,7 +12,7 @@ class TweetListener(tweepy.StreamListener):
             print(status.text)
             #print(status.id)
 
-            self.api.update_status("@tartaponei respondi", in_reply_to_status_id=str(status.id)
+            self.api.update_status("@tartaponei respondi", in_reply_to_status_id=str(status.id))
 
 def from_creator(status):
     """ Verifica se o tweet foi realmente feito pelo user mencionado"""
