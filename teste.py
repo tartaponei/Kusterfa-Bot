@@ -1,18 +1,45 @@
 import tweepy
+from random import choice
 import keys
-#id do maicon: 3120745861
-#id meu: 853281780807368705
+import answers
 
 class TweetListener(tweepy.StreamListener):
+    """Stream que verifica se tem tweets novos"""
     def __init__(self, api):
         self.api = api
 
-    def on_status(self, status):
-        if from_creator(status):
-            print(status.text)
-            #print(status.id)
+    def on_status(self, tweet):
+        if from_creator(tweet):
+            print(tweet.text)
 
-            self.api.update_status("@tartaponei respondi", in_reply_to_status_id=str(status.id))
+            resposta = "@tartaponei "
+            
+            if hasattr(tweet, 'extended_entities') == False:
+                #SE FOR TWEET PEDINDO COISA PRA VIDEO:
+                if True in [i in tweet.text for i in answers.palavras]:
+                    if True in ["pessoa" in tweet.text]: #se tiver pedindo uma pessoa
+                        opcao = choice(answers.opcoes_sugestao_pessoa) #escolhe uma resposta aleatória das opções
+                        resposta += opcao
+                    else:
+                        opcao = choice(answers.opcoes_sugestao_generica) #escolhe uma resposta aleatória das opções
+                        resposta += opcao
+                #SE FOR TWEET GENERICO:
+                else:
+                    opcao = choice(answers.opcoes_generica) #escolhe uma resposta aleatória das opções
+                    resposta += opcao
+            else:
+                #SE FOR UMA IMAGEM:
+                if True in [media['type'] == 'photo' for media in tweet.extended_entities['media']]:
+                    opcao = choice(answers.opcoes_imagem) #escolhe uma resposta aleatória das opções
+                    resposta += "bela imagem " + opcao
+
+                #SE FOR UMA VIDEO:
+                elif True in [media['type'] == 'video' for media in tweet.extended_entities['media']]:
+                    opcao = choice(answers.opcoes_video) #escolhe uma resposta aleatória das opções
+                    resposta += "belo video " + opcao
+
+            self.api.update_status(resposta, in_reply_to_status_id=str(tweet.id)) #responde o tweet em questão
+
 
 def from_creator(status):
     """ Verifica se o tweet foi realmente feito pelo user mencionado"""
@@ -34,13 +61,12 @@ def main():
 
     api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True) #lance de wait tem a ver com esperar se o limite de rate exceder
 
-    # tweet = api.user_timeline("maiconkusterk")[0]
-    # print(tweet.text)
+    id = str(api.get_user("tartaponei").id) #pega o id do usuário
 
     #listener pra ver se tem tweet novo
     listener = TweetListener(api)
     stream = tweepy.Stream(api.auth, listener)
-    stream.filter(follow=['853281780807368705'], is_async=True, ) #procura os tweets e executa o on_status()
+    stream.filter(follow=[id], is_async=True, ) #procura os tweets e executa o on_status()
 
 if __name__ == "__main__":
     main()
