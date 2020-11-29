@@ -12,7 +12,7 @@ class TweetListener(tweepy.StreamListener):
         if from_creator(tweet):
             print(tweet.text)
 
-            resposta = "@tartaponei "
+            resposta = "@maiconkusterk "
             
             if hasattr(tweet, 'extended_entities') == False:
                 #SE FOR TWEET PEDINDO COISA PRA VIDEO:
@@ -61,7 +61,7 @@ def main():
 
     api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True) #lance de wait tem a ver com esperar se o limite de rate exceder
 
-    id = str(api.get_user("tartaponei").id) #pega o id do usuário
+    id = str(api.get_user("maiconkusterk").id) #pega o id do usuário
 
     #listener pra ver se tem tweet novo
     listener = TweetListener(api)
