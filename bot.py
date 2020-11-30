@@ -9,9 +9,14 @@ class TweetListener(tweepy.StreamListener):
         self.api = api
 
     def on_status(self, tweet):
-        if from_creator(tweet):
+        if from_creator(tweet): #se o tweet foi postado pelo próprio usuário (se não foi rt ou resposta a alguém)
             print(tweet.text)
 
+            """LIKE"""
+            if not tweet.favorited:
+                tweet.favorite() #dá like se não tiver dado like
+
+            """RESPOSTA"""
             resposta = "@maiconkusterk "
             
             if hasattr(tweet, 'extended_entities') == False:
@@ -33,7 +38,7 @@ class TweetListener(tweepy.StreamListener):
                     opcao = choice(answers.opcoes_imagem) #escolhe uma resposta aleatória das opções
                     resposta += "bela imagem " + opcao
 
-                #SE FOR UMA VIDEO:
+                #SE FOR UM VIDEO:
                 elif True in [media['type'] == 'video' for media in tweet.extended_entities['media']]:
                     opcao = choice(answers.opcoes_video) #escolhe uma resposta aleatória das opções
                     resposta += "belo video " + opcao
@@ -42,7 +47,7 @@ class TweetListener(tweepy.StreamListener):
 
 
 def from_creator(status):
-    """ Verifica se o tweet foi realmente feito pelo user mencionado"""
+    """ Verifica se o tweet foi realmente feito pelo user mencionado, peguei do @nelvitan"""
     if hasattr(status, 'retweeted_status'):
         return False
     elif status.in_reply_to_status_id != None:
@@ -55,6 +60,7 @@ def from_creator(status):
         return True
 
 def main():
+    """A coisa que roda em si"""
     #colocando as credenciais
     auth = tweepy.OAuthHandler(keys.keys['consumer_key'], keys.keys['consumer_secret'])
     auth.set_access_token(keys.keys['access_token'], keys.keys['access_token_secret'])
@@ -63,10 +69,11 @@ def main():
 
     id = str(api.get_user("maiconkusterk").id) #pega o id do usuário
 
-    #listener pra ver se tem tweet novo
-    listener = TweetListener(api)
-    stream = tweepy.Stream(api.auth, listener)
-    stream.filter(follow=[id], is_async=True, ) #procura os tweets e executa o on_status()
+    while True: #pra rodar pra sempre
+        #listener pra ver se tem tweet novo
+        listener = TweetListener(api)
+        stream = tweepy.Stream(api.auth, listener)
+        stream.filter(follow=[id], is_async=True, ) #procura os tweets e executa o on_status()
 
 if __name__ == "__main__":
     main()
