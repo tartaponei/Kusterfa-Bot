@@ -22,7 +22,7 @@ class TweetListener(tweepy.StreamListener):
             if hasattr(tweet, 'extended_entities') == False:
                 #SE FOR TWEET PEDINDO COISA PRA VIDEO:
                 if True in [i in tweet.text for i in answers.palavras]:
-                    if True in ["pessoa" in tweet.text]: #se tiver pedindo uma pessoa
+                    if True in ["pessoa" in tweet.text] or True in ["famosos" in tweet.text]: #se tiver pedindo uma pessoa
                         opcao = choice(answers.opcoes_sugestao_pessoa) #escolhe uma resposta aleatória das opções
                         resposta += opcao
                     else:
